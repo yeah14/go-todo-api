@@ -1,0 +1,113 @@
+# 依赖文件
+go.sum
+
+# 编译文件
+todo-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件
+*.test
+*.out
+
+# 本地配置文件
+config/dev.yaml
+config/prod.yaml
+.env
+*.local
+
+# 日志文件
+logs/
+*.log
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 生成文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+
+# 覆盖文件
+coverage.txt
+profile.out
+
+# 文档生成
+docs/_build/
+
+# 数据库文件
+*.db
+*.sqlite3
+
+# 上传文件（如果有）
+uploads/# 依赖文件
+go.sum
+
+# 编译文件
+todo-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件
+*.test
+*.out
+
+# 本地配置文件
+config/dev.yaml
+config/prod.yaml
+.env
+*.local
+
+# 日志文件
+logs/
+*.log
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS 生成文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 临时文件
+tmp/
+temp/
+
+# 覆盖文件
+coverage.txt
+profile.out
+
+# 文档生成
+docs/_build/
+
+# 数据库文件
+*.db
+*.sqlite3
+
