@@ -8,16 +8,17 @@ import (
 )
 
 func TestConnectMysql(t *testing.T) {
-	cfg := config.DatabaseConfig{
-		Host:     "localhost",
-		Port:     "3306",
-		Username: "root",
-		Password: "123456",
-		DBname:   "todo_db",
-		Charset:  "utf8mb4",
-	}
-	db, err := ConnectMysql(cfg)
-	assert.NoErrorf(t, err, "数据库链接成功")
+	//cfg := config.DatabaseConfig{
+	//	Host:     "localhost",
+	//	Port:     "3306",
+	//	Username: "root",
+	//	Password: "123456",
+	//	DBname:   "todo_db",
+	//	Charset:  "utf8mb4",
+	//}
+	config.InitConfig("../../config/dev.yaml")
+	db, err := ConnectMysql(config.GlobalConfig.Database)
+	assert.NoError(t, err, "数据库链接成功")
 	assert.NotNil(t, db, "数据库的对象不为空")
 
 	if db != nil {
@@ -37,9 +38,9 @@ func TestConnectMySQL_Failure(t *testing.T) {
 	cfg := config.DatabaseConfig{
 		Host:     "wrong_host",
 		Port:     "3306",
-		Username: "wrong_user",
+		User:     "wrong_user",
 		Password: "wrong_password",
-		DBname:   "wrong_db",
+		DBName:   "wrong_db",
 		Charset:  "utf8mb4",
 	}
 
