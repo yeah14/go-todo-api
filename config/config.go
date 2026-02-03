@@ -54,7 +54,7 @@ type LogConfig struct {
 
 var GlobalConfig config
 
-func InitCongig(configFile string) {
+func InitConfig(configFile string) {
 	if configFile == "" {
 		configFile = "config/config.yaml"
 	}
