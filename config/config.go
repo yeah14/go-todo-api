@@ -34,7 +34,7 @@ type JWTConfig struct {
 	Secret        string
 	AccessExpire  int
 	RefreshExpire int
-	issuer        string
+	Issuer        string
 }
 
 type RedisConfig struct {
