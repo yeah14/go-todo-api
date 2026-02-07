@@ -24,9 +24,9 @@ type SeverConfig struct {
 type DatabaseConfig struct {
 	Host     string
 	Port     string
-	Username string
+	User     string
 	Password string
-	DBname   string
+	DBName   string
 	Charset  string
 }
 
@@ -34,7 +34,7 @@ type JWTConfig struct {
 	Secret        string
 	AccessExpire  int
 	RefreshExpire int
-	issuer        string
+	Issuer        string
 }
 
 type RedisConfig struct {
@@ -54,9 +54,9 @@ type LogConfig struct {
 
 var GlobalConfig config
 
-func InitCongig(configFile string) {
+func InitConfig(configFile string) {
 	if configFile == "" {
-		configFile = "config/config.yaml"
+		configFile = "config/dev.yaml"
 	}
 	viper.SetConfigType("yaml")
 	viper.SetConfigFile(configFile)
@@ -66,4 +66,5 @@ func InitCongig(configFile string) {
 	if err := viper.Unmarshal(&GlobalConfig); err != nil {
 		log.Fatal("解析配置文件错误:%v", err)
 	}
+	//fmt.Println(GlobalConfig.Database.Host, GlobalConfig.Database.Port, GlobalConfig.Database.Username, GlobalConfig.Database.Password)
 }
