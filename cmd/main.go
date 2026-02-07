@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	config.InitConfig("config/config.yaml")
+	config.InitConfig("config/dev.yaml")
 	db, err := database.ConnectMysql(config.GlobalConfig.Database)
 	if err != nil {
 		log.Fatalf("数据库链接失败 %v", err)
