@@ -32,7 +32,7 @@ func (req *UpdateProfileRequest) ToMap() map[string]string {
 type ChangePasswordRequest struct {
 	OldPassword     string `json:"old_password" binding:"required"`
 	NewPassword     string `json:"new_password" binding:"required,min=6,max=20"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,equal=NewPassword"`
+	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=NewPassword"`
 }
 
 func (req *ChangePasswordRequest) Validate() error {

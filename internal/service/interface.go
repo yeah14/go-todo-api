@@ -13,5 +13,7 @@ type AuthService interface {
 }
 
 type UserService interface {
-	ChangePassword(ctx context.Context, userID uint, req *request.ChangePasswordRequest) (*response.UserResponse, error)
+	ChangePassword(ctx context.Context, userID uint, req *request.ChangePasswordRequest) error
+	UpdateProfile(ctx context.Context, userID uint, req *request.UpdateProfileRequest) (*response.UserProfileResponse, error)
+	GetProfile(ctx context.Context, userID uint) (*response.UserProfileResponse, error)
 }

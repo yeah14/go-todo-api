@@ -44,6 +44,13 @@ func GenerateToken(userID uint, userName string, isRefresh bool) (string, error)
 			Subject:   "todo-api-access",
 		},
 	}
+	//fmt.Printf("GenerateToken claims: exp=%v, iat=%v, nbf=%v, now=%v, accessExpire=%v\n",
+	//	Claims.ExpiresAt.Time,
+	//	Claims.IssuedAt.Time,
+	//	Claims.NotBefore.Time,
+	//	time.Now(),
+	//	jwtConfig.AccessExpire,
+	//) //test
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims)
 	return token.SignedString([]byte(jwtConfig.Secret))
 }
@@ -56,6 +63,7 @@ func ParseToken(tokenString string) (*Claims, error) {
 		return []byte(config.GlobalConfig.JWT.Secret), nil
 	})
 	if err != nil {
+		//fmt.Println("ParseToken raw error:", err) // test
 		if errors.Is(err, jwt.ErrTokenExpired) {
 			return nil, ErrTokenExpired
 		} else if errors.Is(err, jwt.ErrTokenNotValidYet) {

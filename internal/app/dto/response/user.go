@@ -7,7 +7,7 @@ type UserProfileResponse struct {
 	Username  string    `json:"username"`
 	Email     string    `json:"password"`
 	Avatar    *string   `json:"avatar,omitempty"`
-	Status    uint      `json:"status"`
+	Status    uint8     `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

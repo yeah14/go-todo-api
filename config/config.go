@@ -32,8 +32,8 @@ type DatabaseConfig struct {
 
 type JWTConfig struct {
 	Secret        string
-	AccessExpire  int
-	RefreshExpire int
+	AccessExpire  int `mapstructure:"access_expire" yaml:"access_expire"`
+	RefreshExpire int `mapstructure:"refresh_expire" yaml:"refresh_expire"`
 	Issuer        string
 }
 
