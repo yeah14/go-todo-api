@@ -2,6 +2,7 @@ package routes
 
 import (
 	"go-todo-api/internal/app/handler"
+	"go-todo-api/internal/app/middleware"
 	"go-todo-api/internal/repository"
 	"go-todo-api/internal/service"
 
@@ -16,13 +17,24 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	//初始化服务
 	authService := service.NewAuthService(userReop)
-
+	userService := service.NewUserService(userReop)
 	//初始化处理器
 	authHandler := handler.NewAuthHandler(authService)
+	userHandler := handler.NewUserHandler(userService)
 	pubilc := r.Group("/api/v1")
 	{
 		pubilc.POST("auth/register", authHandler.Register)
 		pubilc.POST("auth/login", authHandler.Login)
+	}
+	protected := r.Group("/api/v1")
+	protected.Use(middleware.AuthHandler())
+	{
+		user := protected.Group("/user")
+		{
+			user.GET("/me", userHandler.GetProfile)
+			user.POST("/me", userHandler.UpdateProfile)
+			user.POST("/me/password", userHandler.ChangePassword)
+		}
 	}
 	return r
 }

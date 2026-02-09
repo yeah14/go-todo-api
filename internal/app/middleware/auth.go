@@ -11,6 +11,7 @@ import (
 func AuthHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header.Get("Authorization")
+		//fmt.Println("Authorization header:", authHeader) //test
 		if authHeader == "" {
 			response.Unauthorized(c, "缺少认证令牌")
 			c.Abort()
@@ -25,8 +26,10 @@ func AuthHandler() gin.HandlerFunc {
 		}
 
 		tokenString := parts[1]
+		//fmt.Println(tokenString)//test
 		claims, err := jwt.ParseToken(tokenString)
 		if err != nil {
+			//fmt.Println("AuthHandler ParseToken error:", err) // 新增
 			response.Unauthorized(c, "认证令牌无效或已过期")
 			c.Abort()
 			return
