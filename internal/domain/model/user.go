@@ -16,6 +16,9 @@ type User struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
+
+	Todos []Todo `gorm:"foreignKey:UserID"`
+	Tags  []Tag  `gorm:"foreignKey:UserID"`
 }
 
 func (User) TableName() string {
