@@ -17,3 +17,12 @@ type UserService interface {
 	UpdateProfile(ctx context.Context, userID uint, req *request.UpdateProfileRequest) (*response.UserProfileResponse, error)
 	GetProfile(ctx context.Context, userID uint) (*response.UserProfileResponse, error)
 }
+
+type TodoService interface {
+	GetTodoByID(ctx context.Context, userID uint, req *request.GetTodoBYIdRequest) (*response.TodoResponse, error)
+	CreateTodo(ctx context.Context, userID uint, req *request.CreateTodoRequest) (*response.TodoResponse, error)
+	Delete(ctx context.Context, userID uint, req *request.GetTodoBYIdRequest) error
+	Update(ctx context.Context, userID uint, req *request.UpdateTodoRequest) (*response.TodoResponse, error)
+	GetTodos(ctx context.Context, userID uint, req *request.GetTodoRequest) (*response.TodoListResponse, error)
+	BatchUpdateStatus(ctx context.Context, userID uint, req *request.BatchUpdateStatusRequest) ([]response.TodoResponse, error)
+}
