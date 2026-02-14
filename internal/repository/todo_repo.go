@@ -21,15 +21,23 @@ func NewTodoRepo(db *gorm.DB) TodoRepository {
 
 func (t *todoRepo) Create(ctx context.Context, todo *model.Todo) error {
 	if todo == nil {
-		return errors.New("用户为空")
+		return errors.New("待办事项为空")
 	}
-	return t.db.WithContext(ctx).Create(todo).Error
-
+	err := t.db.WithContext(ctx).Create(todo).Error
+	if err != nil {
+		return err
+	}
+	if len(todo.Tags) > 0 {
+		if err := t.db.Model(todo).Association("Tags").Replace(todo.Tags); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (t *todoRepo) GetByID(ctx context.Context, id uint) (*model.Todo, error) {
 	todo := new(model.Todo)
-	err := t.db.WithContext(ctx).First(todo, "id=?", id).Error
+	err := t.db.WithContext(ctx).Preload("Tags").First(todo, "id=?", id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +74,7 @@ func (t *todoRepo) ListByUser(ctx context.Context, userID uint, query *TodoQuery
 	if err := db.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("统计待办事项失败: %w", err)
 	}
-	db = db.Offset(offset).Limit(query.PageSize)
+	db = db.Preload("Tags").Offset(offset).Limit(query.PageSize)
 	var todos []model.Todo
 	if err := db.Find(&todos).Error; err != nil {
 		return nil, 0, fmt.Errorf("查找待办事项失败: %w", err)

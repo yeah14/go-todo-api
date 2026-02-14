@@ -26,3 +26,10 @@ type TodoService interface {
 	GetTodos(ctx context.Context, userID uint, req *request.GetTodoRequest) (*response.TodoListResponse, error)
 	BatchUpdateStatus(ctx context.Context, userID uint, req *request.BatchUpdateStatusRequest) ([]response.TodoResponse, error)
 }
+
+type TagService interface {
+	Create(ctx context.Context, userID uint, req *request.CreateTagRequest) (*response.TagResponse, error)
+	GetTags(ctx context.Context, userID uint) (*response.TagListResponse, error)
+	Update(ctx context.Context, userID uint, req *request.UpdateTagRequest) (*response.TagResponse, error)
+	Delete(ctx context.Context, userID uint, req *request.DeleteTagRequest) error
+}

@@ -24,7 +24,6 @@ func NewTodoService(todoRepo repository.TodoRepository, tagRepo repository.TagRe
 }
 
 func (t *todoService) GetTodoByID(ctx context.Context, userID uint, req *request.GetTodoBYIdRequest) (*response.TodoResponse, error) {
-	//TODO implement me
 	todo, err := t.todoRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return nil, errors.New("查找待办事项失败")
@@ -35,6 +34,7 @@ func (t *todoService) GetTodoByID(ctx context.Context, userID uint, req *request
 func (t *todoService) CreateTodo(ctx context.Context, userID uint, req *request.CreateTodoRequest) (*response.TodoResponse, error) {
 
 	tags, err := t.validateAndGetTags(ctx, userID, req.TagIDs)
+
 	if err != nil {
 		return nil, err
 	}
@@ -65,12 +65,15 @@ func (t *todoService) CreateTodo(ctx context.Context, userID uint, req *request.
 }
 
 func (t *todoService) validateAndGetTags(ctx context.Context, userID uint, tagIDs []uint) ([]model.Tag, error) {
+	if len(tagIDs) == 0 {
+		return []model.Tag{}, nil
+	}
 	uniqueTags := make(map[uint]bool)
 	for _, tagID := range tagIDs {
 		uniqueTags[tagID] = true
 	}
 
-	tags := make([]model.Tag, len(tagIDs))
+	tags := make([]model.Tag, 0)
 	for tagID, _ := range uniqueTags {
 		tag, err := t.tagRepo.GetByID(ctx, tagID)
 		if err != nil {
@@ -80,7 +83,13 @@ func (t *todoService) validateAndGetTags(ctx context.Context, userID uint, tagID
 			return nil, fmt.Errorf("标签ID %d 不属于当前用户", tagID)
 		}
 		tags = append(tags, *tag)
+
+		if tag.UserID != userID {
+			return nil, fmt.Errorf("标签ID %d (名称: %s) 不属于当前用户", tagID, tag.Name)
+		}
+		tags = append(tags, *tag)
 	}
+
 	return tags, nil
 }
 

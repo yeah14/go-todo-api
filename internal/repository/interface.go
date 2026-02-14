@@ -33,6 +33,7 @@ type TagRepository interface {
 	GetByID(ctx context.Context, id uint) (*model.Tag, error)
 	Delete(ctx context.Context, id uint) error
 	Update(ctx context.Context, tag *model.Tag) error
+	GetAll(ctx context.Context, userID uint) ([]model.Tag, error)
 }
 
 type TodoQuery struct {
