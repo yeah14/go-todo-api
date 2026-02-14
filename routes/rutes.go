@@ -16,14 +16,17 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	userReop := repository.NewUserRepository(db)
 	todoRepo := repository.NewTodoRepo(db)
 	tagReop := repository.NewTagRepository(db)
+
 	//初始化服务
 	authService := service.NewAuthService(userReop)
 	userService := service.NewUserService(userReop)
 	todoService := service.NewTodoService(todoRepo, tagReop)
+	tagService := service.NewTagService(tagReop)
 	//初始化处理器
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userService)
 	todoHandler := handler.NewTodoHandler(todoService)
+	tagHandler := handler.NewTagHandler(tagService)
 	pubilc := r.Group("/api/v1")
 	{
 		pubilc.POST("auth/register", authHandler.Register)
@@ -47,6 +50,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			todos.PUT("/:id", todoHandler.Update)
 			todos.GET("", todoHandler.GetTodos)
 			todos.PUT("/batch/status", todoHandler.BatchUpdateStatus)
+		}
+
+		tags := protected.Group("/tags")
+		{
+			tags.GET("", tagHandler.GetTags)
+			tags.POST("", tagHandler.Create)
+			tags.PUT("/:id", tagHandler.Update)
+			tags.DELETE("/:id", tagHandler.Delete)
 		}
 	}
 	return r
