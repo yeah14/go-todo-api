@@ -71,7 +71,7 @@ func ToTodoResponse(todo model.Todo) TodoResponse {
 	} else {
 		dueDate = todo.DueDate.Format("2006-01-02T15:04:05")
 	}
-	tags := make([]TagResponse, len(todo.Tags))
+	tags := make([]TagResponse, 0)
 	for _, tag := range todo.Tags {
 		tagResponse, _ := GenerateTagResponse(&tag)
 		tags = append(tags, *tagResponse)
