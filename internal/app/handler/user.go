@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-todo-api/internal/app/dto/request"
 	"go-todo-api/internal/service"
 	"go-todo-api/pkg/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 type userHandler struct {
@@ -15,6 +16,19 @@ func NewUserHandler(userService service.UserService) *userHandler {
 	return &userHandler{userService}
 }
 
+// GetProfile 获取当前用户信息
+// @Summary      获取个人资料
+// @Description  获取当前登录用户的详细信息
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  response.UserProfileResponse    "用户信息"
+// @Failure      401  {object}  response.Response      "未认证"
+// @Failure      403  {object}  response.Response      "用户已被禁用"
+// @Failure      404  {object}  response.Response      "用户不存在"
+// @Failure      500  {object}  response.Response      "服务器内部错误"
+// @Router       /user/me [get]
 func (h *userHandler) GetProfile(c *gin.Context) {
 	userID, exist := c.Get("userID")
 	if !exist {
