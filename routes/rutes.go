@@ -7,10 +7,11 @@ import (
 	"go-todo-api/internal/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-func SetupRouter(db *gorm.DB) *gin.Engine {
+func SetupRouter(db *gorm.DB, rbd *redis.Client) *gin.Engine {
 	r := gin.Default()
 	//初始化仓库
 	userReop := repository.NewUserRepository(db)
@@ -22,8 +23,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	userService := service.NewUserService(userReop)
 	todoService := service.NewTodoService(todoRepo, tagReop)
 	tagService := service.NewTagService(tagReop)
+	blacklistSvc := service.NewBlacklistService(rbd)
 	//初始化处理器
-	authHandler := handler.NewAuthHandler(authService)
+	authHandler := handler.NewAuthHandler(authService, blacklistSvc)
 	userHandler := handler.NewUserHandler(userService)
 	todoHandler := handler.NewTodoHandler(todoService)
 	tagHandler := handler.NewTagHandler(tagService)
@@ -33,7 +35,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		pubilc.POST("auth/login", authHandler.Login)
 	}
 	protected := r.Group("/api/v1")
-	protected.Use(middleware.AuthHandler())
+	protected.Use(middleware.AuthHandler(blacklistSvc))
 	{
 		user := protected.Group("/user")
 		{
@@ -58,6 +60,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			tags.POST("", tagHandler.Create)
 			tags.PUT("/:id", tagHandler.Update)
 			tags.DELETE("/:id", tagHandler.Delete)
+		}
+
+		auth := protected.Group("/auth")
+		{
+			auth.POST("/logout", authHandler.Logout)
 		}
 	}
 	return r

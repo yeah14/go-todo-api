@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-todo-api/internal/app/dto/request"
 	"go-todo-api/internal/app/dto/response"
+	"time"
 )
 
 type AuthService interface {
@@ -32,4 +33,9 @@ type TagService interface {
 	GetTags(ctx context.Context, userID uint) (*response.TagListResponse, error)
 	Update(ctx context.Context, userID uint, req *request.UpdateTagRequest) (*response.TagResponse, error)
 	Delete(ctx context.Context, userID uint, req *request.DeleteTagRequest) error
+}
+
+type BlacklistService interface {
+	AddtoBlacklist(ctx context.Context, tokenString string, expiresIn time.Duration) error
+	IsInBlacklist(ctx context.Context, tokenString string) (bool, error)
 }

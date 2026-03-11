@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"go-todo-api/internal/service"
 	"go-todo-api/pkg/jwt"
 	"go-todo-api/pkg/response"
 	"strings"
@@ -8,8 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthHandler() gin.HandlerFunc {
+func AuthHandler(blacklistSvc service.BlacklistService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 1. 从Header中获取Token
 		authHeader := c.Request.Header.Get("Authorization")
 		//fmt.Println("Authorization header:", authHeader) //test
 		if authHeader == "" {
@@ -24,8 +26,22 @@ func AuthHandler() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
 		tokenString := parts[1]
+
+		//2,检查黑名单
+		inBlackList, err := blacklistSvc.IsInBlacklist(c.Request.Context(), tokenString)
+		if err != nil {
+			response.Unauthorized(c, err.Error())
+			c.Abort()
+			return
+		}
+		if inBlackList {
+			response.Unauthorized(c, "令牌状态验证失败")
+			c.Abort()
+			return
+		}
+
+		// 3. 解析并验证JWT令牌
 		//fmt.Println(tokenString)//test
 		claims, err := jwt.ParseToken(tokenString)
 		if err != nil {
@@ -37,6 +53,7 @@ func AuthHandler() gin.HandlerFunc {
 
 		c.Set("userID", claims.UserID)
 		c.Set("username", claims.Username)
+		c.Set("tokenString", tokenString)
 		c.Next()
 	}
 }
