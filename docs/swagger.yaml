@@ -1,0 +1,679 @@
+basePath: /api/v1
+definitions:
+  request.BatchUpdateStatusRequest:
+    properties:
+      status:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      todo_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - status
+    - todo_ids
+    type: object
+  request.CreateTagRequest:
+    properties:
+      color:
+        type: string
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+    required:
+    - color
+    - name
+    type: object
+  request.CreateTodoRequest:
+    properties:
+      description:
+        maxLength: 255
+        minLength: 1
+        type: string
+      due_date:
+        maxLength: 255
+        minLength: 1
+        type: string
+      priority:
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        type: integer
+      status:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      tag_ids:
+        items:
+          type: integer
+        type: array
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - priority
+    - status
+    - title
+    type: object
+  request.LoginRequest:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  request.RegisterRequest:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      password:
+        maxLength: 20
+        minLength: 6
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - confirm_password
+    - email
+    - password
+    - username
+    type: object
+  request.UpdateTagRequest:
+    properties:
+      color:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+    type: object
+  request.UpdateTodoRequest:
+    properties:
+      description:
+        maxLength: 255
+        minLength: 1
+        type: string
+      id:
+        type: integer
+      priority:
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        type: integer
+      status:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+    type: object
+  response.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: integer
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/response.UserResponse'
+    type: object
+  response.Pagination:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  response.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      meta: {}
+    type: object
+  response.TagListResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/response.TagResponse'
+        type: array
+    type: object
+  response.TagResponse:
+    properties:
+      color:
+        type: string
+      create_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      update_at:
+        type: string
+    type: object
+  response.TodoListResponse:
+    properties:
+      pagination:
+        $ref: '#/definitions/response.Pagination'
+      todos:
+        items:
+          $ref: '#/definitions/response.TodoResponse'
+        type: array
+    type: object
+  response.TodoResponse:
+    properties:
+      completed_at:
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      priority:
+        type: integer
+      priority_text:
+        type: string
+      status:
+        type: integer
+      status_text:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/response.TagResponse'
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  response.UserProfileResponse:
+    properties:
+      avatar:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      status:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  response.UserResponse:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: 基于 Gin 的待办事项管理系统 API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Go-Todo-API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名和密码登录
+      parameters:
+      - description: 登录请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功，返回令牌
+          schema:
+            $ref: '#/definitions/response.AuthResponse'
+        "400":
+          description: 请求参数错误或用户名密码错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 用户登录
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名、邮箱和密码注册新用户
+      parameters:
+      - description: 注册请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 注册成功
+          schema:
+            $ref: '#/definitions/response.AuthResponse'
+        "400":
+          description: 请求参数错误或用户名/邮箱已存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 用户注册
+      tags:
+      - auth
+  /tags:
+    get:
+      consumes:
+      - application/json
+      description: 返回当前用户创建的所有标签
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 标签列表
+          schema:
+            $ref: '#/definitions/response.TagListResponse'
+        "400":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取当前用户的标签列表
+      tags:
+      - tags
+  /tags/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据标签ID删除标签（会解除与待办事项的关联）
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功（数据为null）
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 请求参数错误或用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除标签
+      tags:
+      - tags
+    put:
+      consumes:
+      - application/json
+      description: 根据标签ID更新标签信息（名称、颜色等）
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.TagResponse'
+        "400":
+          description: 请求参数错误或用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新标签
+      tags:
+      - tags
+  /todos:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取待办事项列表，支持按状态、优先级、标签筛选
+      parameters:
+      - description: 页码，默认1
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - description: 每页数量，默认10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: 状态筛选：0-待办，1-进行中，2-已完成
+        enum:
+        - 0
+        - 1
+        - 2
+        in: query
+        name: status
+        type: integer
+      - description: 优先级筛选：1-低，2-中，3-高，4-紧急
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        in: query
+        name: priority
+        type: integer
+      - description: 标签ID筛选
+        in: query
+        name: tag_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 待办事项列表（包含分页信息）
+          schema:
+            $ref: '#/definitions/response.TodoListResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取待办事项列表
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: 创建一个新的待办事项
+      parameters:
+      - description: 待办事项信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/response.TodoResponse'
+        "400":
+          description: 请求参数错误或标题为空
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建待办事项
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据 ID 删除待办事项
+      parameters:
+      - description: 待办事项 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功，返回消息和ID
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 无效的ID或删除失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除待办事项
+      tags:
+      - todos
+    get:
+      consumes:
+      - application/json
+      description: 根据待办事项 ID 获取详细信息
+      parameters:
+      - description: 待办事项 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 待办事项详情
+          schema:
+            $ref: '#/definitions/response.TodoResponse'
+        "400":
+          description: 无效的ID或请求失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取待办事项详情
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: 根据 ID 更新待办事项信息
+      parameters:
+      - description: 待办事项 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/response.TodoResponse'
+        "400":
+          description: 请求参数错误或更新失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新待办事项
+      tags:
+      - todos
+  /todos/batch/status:
+    put:
+      consumes:
+      - application/json
+      description: 批量更新多个待办事项的状态
+      parameters:
+      - description: 批量更新请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.BatchUpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新结果
+          schema:
+            items:
+              $ref: '#/definitions/response.TodoResponse'
+            type: array
+        "400":
+          description: 请求参数错误或更新失败
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 用户未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 批量更新状态
+      tags:
+      - todos
+  /user/me:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前登录用户的详细信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户信息
+          schema:
+            $ref: '#/definitions/response.UserProfileResponse'
+        "401":
+          description: 未认证
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: 用户已被禁用
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取个人资料
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
