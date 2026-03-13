@@ -5,6 +5,7 @@ import (
 	"go-todo-api/internal/app/middleware"
 	"go-todo-api/internal/repository"
 	"go-todo-api/internal/service"
+	"go-todo-api/pkg/cache"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -18,9 +19,11 @@ func SetupRouter(db *gorm.DB, rbd *redis.Client) *gin.Engine {
 	todoRepo := repository.NewTodoRepo(db)
 	tagReop := repository.NewTagRepository(db)
 
+	//初始化cache
+	userCache := cache.NewUserCache(rbd)
 	//初始化服务
 	authService := service.NewAuthService(userReop)
-	userService := service.NewUserService(userReop)
+	userService := service.NewUserService(userReop, userCache)
 	todoService := service.NewTodoService(todoRepo, tagReop)
 	tagService := service.NewTagService(tagReop)
 	blacklistSvc := service.NewBlacklistService(rbd)

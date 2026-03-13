@@ -7,18 +7,30 @@ import (
 	"go-todo-api/internal/app/dto/response"
 	"go-todo-api/internal/domain/model"
 	"go-todo-api/internal/repository"
+	"go-todo-api/pkg/cache"
 	"go-todo-api/pkg/encryption"
+	"log"
+	"time"
 )
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo  repository.UserRepository
+	userCache cache.UserCache
 }
 
-func NewUserService(userRepo repository.UserRepository) UserService {
-	return &userService{userRepo: userRepo}
+func NewUserService(userRepo repository.UserRepository, userCache cache.UserCache) UserService {
+	return &userService{userRepo: userRepo, userCache: userCache}
 }
 
 func (s *userService) GetProfile(ctx context.Context, userID uint) (*response.UserProfileResponse, error) {
+	cachedUser, err := s.userCache.Get(ctx, userID)
+	if err != nil {
+		// 记录日志，但不中断流程，降级到查数据库
+		log.Printf("获取用户缓存失败: %v，降级查DB", err)
+	} else if cachedUser != nil {
+		// 缓存命中，直接返回
+		return s.generateUserResponse(cachedUser)
+	}
 	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, errors.New("用户不存在")
@@ -26,6 +38,13 @@ func (s *userService) GetProfile(ctx context.Context, userID uint) (*response.Us
 	if user.Status == 0 {
 		return nil, errors.New("用户已被禁用")
 	}
+	go func() { // 使用goroutine异步写入，不阻塞本次请求响应
+		ctxAsync, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := s.userCache.Set(ctxAsync, user); err != nil {
+			log.Printf("异步写入用户缓存失败: %v", err)
+		}
+	}()
 	return s.generateUserResponse(user)
 }
 
@@ -47,6 +66,13 @@ func (s *userService) ChangePassword(ctx context.Context, userID uint, req *requ
 
 	user.PasswordHash = hashPassword
 	err = s.userRepo.Update(ctx, user)
+	go func() {
+		ctxAsync, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := s.userCache.Delete(ctxAsync, userID); err != nil {
+			log.Printf("删除用户缓存失败: %v", err)
+		}
+	}()
 	if err != nil {
 		return err
 	}
@@ -82,6 +108,13 @@ func (s *userService) UpdateProfile(ctx context.Context, userID uint, req *reque
 		user.AvatarURL = req.Avatar
 	}
 	err = s.userRepo.Update(ctx, user)
+	go func() {
+		ctxAsync, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := s.userCache.Delete(ctxAsync, userID); err != nil {
+			log.Printf("删除用户缓存失败: %v", err)
+		}
+	}()
 	if err != nil {
 		return nil, err
 	}
